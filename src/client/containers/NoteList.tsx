@@ -14,6 +14,7 @@ import {
   sortByLastUpdated,
   sortByFavorites,
   shouldOpenContextMenu,
+  debounceEvent,
 } from '@/utils/helpers'
 import { useKey } from '@/utils/hooks'
 import { emptyTrash, pruneNotes, swapNote, searchNotes } from '@/slices/note'
@@ -38,7 +39,10 @@ export const NoteList: React.FC = () => {
   const _toggleSidebarVisibility = () => dispatch(toggleSidebarVisibility())
   const _pruneNotes = () => dispatch(pruneNotes())
   const _swapNote = (noteId: string) => dispatch(swapNote(noteId))
-  const _searchNotes = _.debounce((searchValue: string) => dispatch(searchNotes(searchValue)), 100)
+  const _searchNotes = debounceEvent(
+    (searchValue: string) => dispatch(searchNotes(searchValue)),
+    100
+  )
 
   // ===========================================================================
   // Refs
@@ -54,7 +58,7 @@ export const NoteList: React.FC = () => {
   const [optionsId, setOptionsId] = useState('')
   const [optionsPosition, setOptionsPosition] = useState({ x: 0, y: 0 })
 
-  const re = new RegExp(_.escapeRegExp(searchValue), 'i')
+  const re = new RegExp(searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
   const isMatch = (result: NoteItem) => re.test(result.text)
 
   const filter: Record<Folder, (note: NoteItem) => boolean> = {
